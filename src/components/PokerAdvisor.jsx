@@ -1,4 +1,8 @@
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+
+const AIML_API_KEY = import.meta.env.VITE_AIML_API_KEY;
+const AIML_API_URL = "https://api.aimlapi.com/v1/chat/completions";
 
 const suits = ["♠", "♥", "♦", "♣"];
 const values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -32,62 +36,49 @@ function getCardImageFilename(value, suit) {
   return val && s ? `/cards/${val}_of_${s}.png` : null;
 }
 
-function getRecommendation(hand, board) {
-  if (hand.length !== 2 || !hand[0].value || !hand[1].value) return "Please enter a valid hand";
+async function fetchAIAnalysis(hand, board, potSize, callAmount) {
+  const prompt = `You are a professional poker player. Given the situation below, provide a strategic analysis and recommendation:\n
+Hand: ${hand.map(c => `${c.value}${c.suit}`).join(", ")}\n
+Board: ${board.filter(c => c.value && c.suit).map(c => `${c.value}${c.suit}`).join(", ") || "N/A"}\n
+Pot Size: $${potSize}, Call Amount: $${callAmount}`;
 
-  const ranks = hand.map(card => card.value);
-  const rankStrength = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+  try {
+    const response = await axios.post(
+      AIML_API_URL,
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert poker player providing clear advice."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.8,
+        max_tokens: 250,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        response_format: {
+          type: "text"
+        },
+        modalities: ["text"]
+      },
+      {
+        headers: {
+          "Authorization": `Bearer ${AIML_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-  const isPair = ranks[0] === ranks[1];
-  const sorted = [...ranks].sort((a, b) => rankStrength.indexOf(a) - rankStrength.indexOf(b));
-
-  if (isPair) {
-    const pairRank = ranks[0];
-    if (pairRank === "A") return "Raise";
-    if (pairRank === "K") return board.some(c => c.value === "A") ? "Check or Call" : "Raise";
-    if (["Q", "J", "10"].includes(pairRank)) return "Raise";
-    if (["9", "8", "7"].includes(pairRank)) return "Raise or Call";
-    return "Call or Fold depending on position";
-  } else {
-    if (sorted[0] === "A" && sorted[1] === "K") return "Raise";
-    if (sorted[0] === "A" && sorted[1] === "Q") return "Raise or Call";
-    if (sorted[0] === "K" && sorted[1] === "Q") return "Raise or Call";
-    if (sorted[0] === "Q" && sorted[1] === "J") return "Call";
-    if (["10", "9", "8", "7", "6"].includes(sorted[0]) && ["9", "8", "7", "6", "5"].includes(sorted[1])) return "Call or Fold depending on suited/connectors";
+    return response.data.choices?.[0]?.message?.content ?? "No response received.";
+  } catch (error) {
+    console.error("AI Analysis error:", error);
+    return "AI analysis failed. Please try again.";
   }
-
-  return "Check or Fold";
-}
-
-function estimateEV(hand, board) {
-  if (!hand[0].value || !hand[1].value) return 0;
-  const strongHands = ["A", "K", "Q", "J", "10"];
-
-  let ev = 0;
-  const ranks = hand.map(c => c.value);
-  const isPair = ranks[0] === ranks[1];
-  const highCardBonus = strongHands.includes(ranks[0]) + strongHands.includes(ranks[1]);
-  const suited = hand[0].suit === hand[1].suit;
-
-  if (isPair) {
-    ev += 3;
-    if (["A", "K"].includes(ranks[0])) ev += 2;
-    else if (["Q", "J", "10"].includes(ranks[0])) ev += 1;
-  } else {
-    ev += highCardBonus;
-    if (suited) ev += 0.5;
-  }
-
-  const aceOnBoard = board.some(c => c.value === "A");
-  if (ranks.includes("K") && ranks.includes("K") && aceOnBoard) ev -= 1.5;
-
-  return Math.max(0, ev.toFixed(2));
-}
-
-function calculatePotOdds(callAmount, potSize) {
-  if (callAmount <= 0 || potSize <= 0) return 0;
-  const totalPot = callAmount + potSize;
-  return ((callAmount / totalPot) * 100).toFixed(2);
 }
 
 function CardSelector({ card, onChange, allCards }) {
@@ -166,11 +157,7 @@ function CardSelector({ card, onChange, allCards }) {
       </div>
 
       {showPicker && (
-        <div
-          className="picker-popup"
-          ref={pickerRef}
-          style={{ minWidth: "300px" }}
-        >
+        <div className="picker-popup" ref={pickerRef} style={{ minWidth: "300px" }}>
           <div className="picker-section">
             <strong>Suit</strong>
             <div className="picker-row">
@@ -209,7 +196,9 @@ function CardSelector({ card, onChange, allCards }) {
             </div>
           </div>
           <div className="picker-section">
-            <button onClick={resetCard} style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>Reset Card</button>
+            <button onClick={resetCard} style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>
+              Reset Card
+            </button>
           </div>
         </div>
       )}
@@ -218,100 +207,126 @@ function CardSelector({ card, onChange, allCards }) {
 }
 
 export default function PokerAdvisor() {
-  const defaultHand = [
-    { suit: "", value: "" },
-    { suit: "", value: "" },
-  ];
-  const defaultBoard = [
-    { suit: "", value: "" },
-    { suit: "", value: "" },
-    { suit: "", value: "" },
-    { suit: "", value: "" },
-    { suit: "", value: "" },
-  ];
-
-  const [hand, setHand] = useState([...defaultHand]);
-  const [board, setBoard] = useState([...defaultBoard]);
-  const [potSize, setPotSize] = useState("100");
-  const [callAmount, setCallAmount] = useState("25");
-
-  const handleHandChange = (index, newCard) => {
-    const newHand = [...hand];
-    newHand[index] = newCard;
-    setHand(newHand);
-  };
-
-  const handleBoardChange = (index, newCard) => {
-    const newBoard = [...board];
-    newBoard[index] = newCard;
-    setBoard(newBoard);
-  };
-
-  const resetAll = () => {
-    setHand([...defaultHand]);
-    setBoard([...defaultBoard]);
-    setPotSize("100");
-    setCallAmount("25");
-  };
-
-  const recommendation = getRecommendation(hand, board);
-  const ev = estimateEV(hand, board);
-  const potOdds = calculatePotOdds(Number(callAmount), Number(potSize));
-
-  const allCards = [...hand, ...board];
-
-  return (
-    <div className="container">
-      <h1>Poker EV Advisor</h1>
-
-      <button onClick={resetAll} style={{ marginBottom: "1rem" }}>
-        Reset All
-      </button>
-
-      <section>
-        <h2>Your Hand</h2>
-        <div className="cards">
-          {hand.map((card, index) => (
-            <CardSelector
-              key={index}
-              card={card}
-              allCards={allCards}
-              onChange={(newCard) => handleHandChange(index, newCard)}
-            />
-          ))}
+    const defaultHand = [
+      { suit: "", value: "" },
+      { suit: "", value: "" },
+    ];
+    const defaultBoard = [
+      { suit: "", value: "" },
+      { suit: "", value: "" },
+      { suit: "", value: "" },
+      { suit: "", value: "" },
+      { suit: "", value: "" },
+    ];
+  
+    const [hand, setHand] = useState([...defaultHand]);
+    const [board, setBoard] = useState([...defaultBoard]);
+    const [potSize, setPotSize] = useState("Insert Value");
+    const [callAmount, setCallAmount] = useState("Insert Value");
+    const [aiAnalysis, setAIAnalysis] = useState("Waiting for input...");
+    const [loading, setLoading] = useState(false);
+  
+    const handleHandChange = (index, newCard) => {
+      const newHand = [...hand];
+      newHand[index] = newCard;
+      setHand(newHand);
+    };
+  
+    const handleBoardChange = (index, newCard) => {
+      const newBoard = [...board];
+      newBoard[index] = newCard;
+      setBoard(newBoard);
+    };
+  
+    const resetAll = () => {
+      setHand([...defaultHand]);
+      setBoard([...defaultBoard]);
+      setPotSize("Insert Value");
+      setCallAmount("Insert Value");
+      setAIAnalysis("Waiting for input...");
+    };
+  
+    const handleAIAnalysis = async () => {
+      setLoading(true);
+      const result = await fetchAIAnalysis(hand, board, potSize, callAmount);
+      setAIAnalysis(result);
+      setLoading(false);
+    };
+  
+    const allCards = [...hand, ...board];
+  
+    return (
+      <div className="page-wrapper">
+        <div className="layout">
+          <div className="main-panel container">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1.25rem", marginBottom: "1.25rem" }}>
+              <img
+                src="/pokeradvisorlogo1.png"
+                alt="Poker Advisor Logo"
+                style={{ maxHeight: "70px", height: "auto", width: "auto" }}
+              />
+              <h1 style={{ fontSize: "2.5rem", margin: 0 }}>Poker Advisor</h1>
+            </div>
+  
+            <button onClick={resetAll} className="primary-button" style={{ marginBottom: "1rem" }}>
+              Reset All
+            </button>
+  
+            <section>
+              <h2>Your Hand</h2>
+              <div className="cards">
+                {hand.map((card, index) => (
+                  <CardSelector
+                    key={index}
+                    card={card}
+                    allCards={allCards}
+                    onChange={(newCard) => handleHandChange(index, newCard)}
+                  />
+                ))}
+              </div>
+            </section>
+  
+            <section>
+              <h2>Flop / Turn / River</h2>
+              <div className="cards">
+                {board.map((card, index) => (
+                  <CardSelector
+                    key={index}
+                    card={card}
+                    allCards={allCards}
+                    onChange={(newCard) => handleBoardChange(index, newCard)}
+                  />
+                ))}
+              </div>
+            </section>
+  
+            <section>
+              <h2>Pot Settings</h2>
+              <label>
+                Pot Size: $&nbsp;
+                <input className="input-field" type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} />
+              </label>
+              <br /><br />
+              <label>
+                Call Amount: $&nbsp;
+                <input className="input-field" type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} />
+              </label>
+            </section>
+          </div>
+  
+          <div className="ai-panel container" style={{ background: "#1a1a1a", border: "1px solid #444" }}>
+            <h2>AI Insights</h2>
+            <button onClick={handleAIAnalysis} className="primary-button" style={{ marginBottom: "1rem", width: "100%" }}>
+              {loading ? "Analyzing..." : "Run AI Analysis"}
+            </button>
+  
+            <div className="results" style={{ width: "100%" }}>
+              <h3>AI Analysis:</h3>
+              <p>{aiAnalysis}</p>
+            </div>
+          </div>
         </div>
-      </section>
-
-      <section>
-        <h2>Flop / Turn / River</h2>
-        <div className="cards">
-          {board.map((card, index) => (
-            <CardSelector
-              key={index}
-              card={card}
-              allCards={allCards}
-              onChange={(newCard) => handleBoardChange(index, newCard)}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h2>Pot Settings</h2>
-        <label>
-          Pot Size: $<input type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} />
-        </label>
-        <br />
-        <label>
-          Call Amount: $<input type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} />
-        </label>
-      </section>
-
-      <section className="results">
-        <h3>Recommendation: {recommendation}</h3>
-        <h3>Expected Value (EV): {ev} chips</h3>
-        <h3>Pot Odds: {potOdds}%</h3>
-      </section>
-    </div>
-  );
-}
+      </div>
+    );
+  }
+  
