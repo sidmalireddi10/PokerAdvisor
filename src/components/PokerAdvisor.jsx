@@ -346,13 +346,16 @@ useEffect(() => {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-button" onClick={() => setShowHelp(null)}>X</button>
         <h3>How To Work Poker Advisor</h3>
-        <p>1. Click the each card listed under 'Your Hand'. For each, choose the suit and the card value according to the hand you have received in your game. This is your pre-flop hand. Then, set the initial pot size and call amount, and analyze your hand.
+        <p>
+        1. First, select what your order at the table is from the dropdown and your preferred playstyle.
         <br></br><br></br>
-        2. Then, if you did not fold do the same for three more cards under 'Flop/Turn/River'. This is considered the flop. Adjust the pot size and call amount. Now, analyze again.
+        2. Click each card listed under 'Your Hand'. For each, choose the suit and the card value according to the hand you have received in your game. This is your pre-flop hand. Then, set the initial pot size and call amount, and analyze your hand.
         <br></br><br></br>
-        3. Next is the turn. If not folded already, set the suit and value for the fourth card. Adjust the pot size and call amount. Now, analyze again.
+        3. Then, if you did not fold do the same for three more cards under 'Flop/Turn/River'. This is considered the flop. Adjust the pot size and call amount. Now, analyze again.
         <br></br><br></br>
-        4. Finally, do the same for the river. Set the suit and value for the last card. Adjust the pot size and call amount. Now, analyze again.
+        4. Next is the turn. If not folded already, set the suit and value for the fourth card. Adjust the pot size and call amount. Now, analyze again.
+        <br></br><br></br>
+        5. Finally, do the same for the river. Set the suit and value for the last card. Adjust the pot size and call amount. Now, analyze again.
         <br></br><br></br>
         *Once the hand is over or you have folded, press 'Reset All' at the top of the screen.*
         </p>
