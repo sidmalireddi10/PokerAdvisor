@@ -200,7 +200,7 @@ textarea {
 }
 
 body {
-  overflow: hidden;
+  overflow: auto;
 }
 
 @media (max-width: 767px) {

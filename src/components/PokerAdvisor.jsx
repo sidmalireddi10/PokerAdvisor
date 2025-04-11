@@ -50,8 +50,8 @@ Pot Size: $${potSize}, Call Amount: $${callAmount}`;
         messages: [
           {
             role: "system",
-            content: "You are an expert poker player providing clear advice."
-          },
+            content: "You are a professional poker advisor. Respond with a short and clear summary of the player's situation and a concise recommendation. The response should be no longer than 4–5 sentences. Be friendly but strategic—accessible for newer players, but sharp enough for experienced ones."
+          },          
           {
             role: "user",
             content: prompt
@@ -304,12 +304,12 @@ export default function PokerAdvisor() {
               <h2>Pot Settings</h2>
               <label>
                 Pot Size: $&nbsp;
-                <input className="input-field" type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} />
+                <input className="input-field" type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} onFocus={() => {if (potSize === "Insert Value") setPotSize("");}}/>
               </label>
               <br /><br />
               <label>
                 Call Amount: $&nbsp;
-                <input className="input-field" type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} />
+                <input className="input-field" type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} onFocus={() => {if (callAmount === "Insert Value") setCallAmount("");}}/>
               </label>
             </section>
           </div>
