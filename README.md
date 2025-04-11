@@ -1,14 +1,13 @@
-# React + Vite
+# Poker Advisor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Poker Advisor is a sleek and intelligent poker hand evaluator built using React and Vite. It allows users to select a hand and community cards, enter pot settings, and receive expert poker strategy advice powered by AI (GPT-3.5 via the AIML API).
 
-Currently, two official plugins are available:
+The app combines visual card interaction with AI-driven analysis, wrapped in a casino-inspired, responsive interface. It is optimized for both full-screen and mobile experiences, featuring smooth transitions and smart layout behavior.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-
-# PokerEVCalculator
+- 🎴 Interactive card selectors with visual suit/value picker
+- 🧠 AIML API integration to fetch expert poker advice based on real-time input
+- 💰 Pot odds + hand estimation setup (custom inputs for call amount and pot size)
+- 🎨 Custom casino-style design with dark green felt background, red highlights, and elegant typography
+- 📱 Fully responsive layout:
