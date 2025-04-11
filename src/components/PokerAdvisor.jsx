@@ -124,6 +124,13 @@ function CardSelector({ card, onChange, allCards }) {
   };
 
   const cardImage = getCardImageFilename(card.value, card.suit);
+  const [dealt, setDealt] = useState(false);
+
+useEffect(() => {
+  const timer = setTimeout(() => setDealt(true), 100); // slight delay after load
+  return () => clearTimeout(timer);
+}, []);
+
 
   return (
     <div className="card-selector" style={{ position: "relative" }}>
@@ -255,6 +262,10 @@ export default function PokerAdvisor() {
   
     const allCards = [...hand, ...board];
     const [showHelp, setShowHelp] = useState(null);
+    const [showHandsPopup, setShowHandsPopup] = useState(false);
+    useEffect(() => {
+      document.body.style.overflow = showHandsPopup || showHelp ? "hidden" : "auto";
+    }, [showHandsPopup, showHelp]);
   
     return (
       <div className="page-wrapper">
@@ -337,6 +348,119 @@ export default function PokerAdvisor() {
       <input className="input-field" type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} onFocus={() => {if (callAmount === "Insert Value") setCallAmount("");}} />
     </label>
   </section>
+
+{/* Floating Poker Hands Button */}
+<button className="floating-hands-btn" onClick={() => setShowHandsPopup(true)}>🂡 Poker Hands</button>
+
+{/* Winning Hands Popup */}
+{showHandsPopup && (
+  <div className="hands-popup" onClick={() => setShowHandsPopup(false)}>
+    <div className="hands-popup-content" onClick={(e) => e.stopPropagation()}>
+      <button className="exit-button" onClick={() => setShowHandsPopup(false)}>×</button>
+      <h1>Winning Poker Hands</h1>
+      <div className="hand-group">
+        <h4>Royal Flush</h4>
+        <br></br>
+        <div className="card-row">
+          {["ace", "king", "queen", "jack", "10"].map((val) => (
+            <img key={val} src={`/cards/${val}_of_spades.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>Straight Flush</h4>
+        <br></br>
+        <div className="card-row">
+          {["9", "8", "7", "6", "5"].map((val) => (
+            <img key={val} src={`/cards/${val}_of_diamonds.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>Four of a Kind</h4>
+        <br></br>
+        <div className="card-row">
+          {["queen", "queen", "queen", "queen", "5"].map((val, i) => (
+            <img key={i} src={`/cards/${val}_of_${i < 4 ? ["spades", "hearts", "clubs", "diamonds"][i] : "spades"}.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>Full House</h4>
+        <br></br>
+        <div className="card-row">
+          {["10", "10", "10", "king", "king"].map((val, i) => (
+            <img key={i} src={`/cards/${val}_of_${["spades", "hearts", "diamonds", "clubs", "diamonds"][i]}.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>Flush</h4>
+        <br></br>
+        <div className="card-row">
+          {["ace", "jack", "9", "6", "4"].map((val) => (
+            <img key={val} src={`/cards/${val}_of_clubs.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>Straight</h4>
+        <br></br>
+        <div className="card-row">
+          {["8", "7", "6", "5", "4"].map((val, i) => (
+            <img key={val} src={`/cards/${val}_of_${["spades", "diamonds", "clubs", "spades", "hearts"][i]}.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>Three of a Kind</h4>
+        <br></br>
+        <div className="card-row">
+          {["5", "5", "5", "king", "2"].map((val, i) => (
+            <img key={i} src={`/cards/${val}_of_${["diamonds", "spades", "hearts", "clubs", "clubs"][i]}.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>Two Pair</h4>
+        <br></br>
+        <div className="card-row">
+          {["9", "9", "4", "4", "jack"].map((val, i) => (
+            <img key={i} src={`/cards/${val}_of_${["clubs", "diamonds", "spades", "hearts", "diamonds"][i]}.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>One Pair</h4>
+        <br></br>
+        <div className="card-row">
+          {["ace", "ace", "8", "5", "2"].map((val, i) => (
+            <img key={i} src={`/cards/${val}_of_${["spades", "diamonds", "clubs", "hearts", "spades"][i]}.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+      <br></br>
+      <div className="hand-group">
+        <h4>High Card</h4>
+        <br></br>
+        <div className="card-row">
+          {["ace", "10", "8", "4", "2"].map((val, i) => (
+            <img key={i} src={`/cards/${val}_of_${["diamonds", "clubs", "spades", "hearts", "clubs"][i]}.png`} alt={val} className="inline-card" />
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
   </div>
   
           <div className="ai-panel container" style={{ background: "#1a1a1a", border: "1px solid #444" }}>
@@ -361,11 +485,19 @@ export default function PokerAdvisor() {
       </div>
     </div>
   )}
+  
             </div>
+            
           </div>
+          <footer className="footer">
+  © {new Date().getFullYear()} Siddharth Malireddi. All rights reserved.
+</footer>
         </div>
+        
       </div>
+      
       </div>
+      
     );
   }
   

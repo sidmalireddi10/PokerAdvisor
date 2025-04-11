@@ -15,7 +15,25 @@ html, body {
   font-family: Georgia, serif;
   color: #f8f8f8;
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a #1a1a1a;
+  overscroll-behavior: none; 
+  background-color: #014421;
+  animation: fadeInPopup 1s ease-out;
+}
 
+body::-webkit-scrollbar {
+  width: 10px;
+}
+
+body::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #d12d36;
+  border-radius: 8px;
+  border: 2px solid #1a1a1a;
 }
 
 .container {
@@ -31,10 +49,12 @@ html, body {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  overflow: visible !important;
 }
 
 .card-selector {
   margin: 0.5rem;
+  overflow: visible !important;
 }
 
 /* Stylish input fields */
@@ -100,14 +120,14 @@ input[type="text"]:focus {
 
 .picker-popup {
   position: absolute;
+  top: 110%; /* or bottom: -10px if you want it below */
+  left: 0;
+  z-index: 1000;
   background-color: #1a1a1a;
-  border: 1px solid #aaa;
+  border: 1px solid #888;
   border-radius: 0.5rem;
   padding: 1rem;
-  margin-top: 0.5rem;
-  z-index: 100;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  min-width: 300px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .picker-section {
@@ -276,4 +296,137 @@ body {
 
 p {
   line-height: 1.6;
+}
+
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #ccc;
+  padding: 1rem 0;
+  border-top: 1px solid #444;
+  background-color: transparent;
+}
+
+.floating-hands-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background-color: #d12d36;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+}
+
+.hands-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.hands-popup-content {
+  background: #2a2a2a;
+  color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 95%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.card-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+  text-align: center;
+  justify-content: center;
+}
+
+.inline-card {
+  height: 120px;     /* Increase from 55px to 75px */
+  width: auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  object-fit: contain;
+  display: block;
+  
+}
+
+.hand-group h4 {
+  margin-bottom: 0.25rem;
+}
+
+.exit-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.hands-popup-content {
+  /* existing styles... */
+  scrollbar-width: thin;
+  scrollbar-color: #d12d36 #1a1a1a;  /* thumb color and track color */
+  text-align: center;
+}
+
+/* WebKit browsers */
+.hands-popup-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.hands-popup-content::-webkit-scrollbar-track {
+  background: #1a1a1a;  /* track (behind the scroll handle) */
+  border-radius: 8px;
+}
+
+.hands-popup-content::-webkit-scrollbar-thumb {
+  background-color: #d12d36; /* scroll handle */
+  border-radius: 8px;
+  border: 2px solid #1a1a1a;  /* optional border for contrast */
+}
+
+@keyframes fadeInPopup {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hands-popup-content,
+.modal-content {
+  animation: fadeInPopup 0.3s ease-out;
+  overscroll-behavior: contain;
+  background-color: #2a2a2a;
+}
+
+.hand-group h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  text-align: center;
 }
