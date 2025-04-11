@@ -33,7 +33,7 @@ function getCardImageFilename(value, suit) {
 
   const val = valueMap[value];
   const s = suitMap[suit];
-  return val && s ? `/cards/${val}_of_${s}.png` : null;
+  return val && s ? `${import.meta.env.BASE_URL}cards/${val}_of_${s}.png` : null;
 }
 
 async function fetchAIAnalysis(hand, board, potSize, callAmount) {
@@ -261,7 +261,7 @@ export default function PokerAdvisor() {
           <div className="main-panel container">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1.25rem", marginBottom: "1.25rem" }}>
               <img
-                src="/pokeradvisorlogo1.png"
+                src={`${import.meta.env.BASE_URL}pokeradvisorlogo1.png`}
                 alt="Poker Advisor Logo"
                 style={{ maxHeight: "70px", height: "auto", width: "auto" }}
               />
