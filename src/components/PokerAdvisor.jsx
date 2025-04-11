@@ -53,7 +53,7 @@ Player Style: ${style}\n`;
         messages: [
           {
             role: "system",
-            content: "You are a professional poker advisor. Respond with a short and clear summary of the player's situation and a concise recommendation. The response should be no longer than 4–5 sentences. Be friendly but strategic—accessible for newer players, but sharp enough for experienced ones. Also provide the odds of them winning"
+            content: "You are a professional poker advisor. Respond with a short and clear summary of the player's situation and a concise recommendation. The response should be no longer than 5-6 sentences. Be friendly but strategic—accessible for newer players, but sharp enough for experienced ones. Also provide the odds of them winning. Also give exact cards they need to create their best hand. Make summary, recommendation, odds, and needed as different paragraphs."
           },          
           {
             role: "user",
@@ -61,7 +61,7 @@ Player Style: ${style}\n`;
           }
         ],
         temperature: 0.8,
-        max_tokens: 250,
+        max_tokens: 300,
         frequency_penalty: 0,
         presence_penalty: 0,
         response_format: {
@@ -259,7 +259,7 @@ export default function PokerAdvisor() {
   
     const handleAIAnalysis = async () => {
       setLoading(true);
-      const result = await fetchAIAnalysis(hand, board, potSize, callAmount);
+      const result = await fetchAIAnalysis(hand, board, potSize, callAmount, position, style);
       setAIAnalysis(result);
       setLoading(false);
     };
@@ -293,6 +293,7 @@ useEffect(() => {
     <option value="felt">Green Felt</option>
     <option value="red">Red Velvet</option>
     <option value="dark">Dark Mode</option>
+    <option value="light">Light Mode</option>
   </select>
 </div>
 

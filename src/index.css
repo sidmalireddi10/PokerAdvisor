@@ -8,8 +8,7 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
-  background: radial-gradient(circle, #0b6623, #014421); /* Green felt gradient */
-  background-attachment: fixed; /* Important for no white flicker */
+  background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
   font-family: Georgia, serif;
@@ -18,7 +17,6 @@ html, body {
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a #1a1a1a;
   overscroll-behavior: none; 
-  background-color: #014421;
   animation: fadeInPopup 1s ease-out;
 }
 
@@ -439,6 +437,10 @@ body.theme-red {
 }
 body.theme-dark {
   background: linear-gradient(135deg, #111, #222);
+}
+
+body.theme-light {
+  background: linear-gradient(135deg, #fff, #eee);
 }
 
 .player-options-panel {
