@@ -36,11 +36,14 @@ function getCardImageFilename(value, suit) {
   return val && s ? `${import.meta.env.BASE_URL}cards/${val}_of_${s}.png` : null;
 }
 
-async function fetchAIAnalysis(hand, board, potSize, callAmount) {
+async function fetchAIAnalysis(hand, board, potSize, callAmount, position, style) {
   const prompt = `You are a professional poker player. Given the situation below, provide a strategic analysis and recommendation:\n
 Hand: ${hand.map(c => `${c.value}${c.suit}`).join(", ")}\n
 Board: ${board.filter(c => c.value && c.suit).map(c => `${c.value}${c.suit}`).join(", ") || "N/A"}\n
-Pot Size: $${potSize}, Call Amount: $${callAmount}`;
+Pot Size: $${potSize}, Call Amount: $${callAmount}\n
+Player Position: ${position}\n
+Player Style: ${style}\n`;
+
 
   try {
     const response = await axios.post(
@@ -50,7 +53,7 @@ Pot Size: $${potSize}, Call Amount: $${callAmount}`;
         messages: [
           {
             role: "system",
-            content: "You are a professional poker advisor. Respond with a short and clear summary of the player's situation and a concise recommendation. The response should be no longer than 4–5 sentences. Be friendly but strategic—accessible for newer players, but sharp enough for experienced ones."
+            content: "You are a professional poker advisor. Respond with a short and clear summary of the player's situation and a concise recommendation. The response should be no longer than 4–5 sentences. Be friendly but strategic—accessible for newer players, but sharp enough for experienced ones. Also provide the odds of them winning"
           },          
           {
             role: "user",
@@ -226,6 +229,7 @@ export default function PokerAdvisor() {
       { suit: "", value: "" },
     ];
   
+    
     const [hand, setHand] = useState([...defaultHand]);
     const [board, setBoard] = useState([...defaultBoard]);
     const [potSize, setPotSize] = useState("Insert Value");
@@ -263,13 +267,35 @@ export default function PokerAdvisor() {
     const allCards = [...hand, ...board];
     const [showHelp, setShowHelp] = useState(null);
     const [showHandsPopup, setShowHandsPopup] = useState(false);
+    const [position, setPosition] = useState("Middle"); // Default
+    const [style, setStyle] = useState("Balanced");
     useEffect(() => {
       document.body.style.overflow = showHandsPopup || showHelp ? "hidden" : "auto";
     }, [showHandsPopup, showHelp]);
+    const [theme, setTheme] = useState("felt");
+
+useEffect(() => {
+  document.body.className = ""; // clear existing theme
+  document.body.classList.add(`theme-${theme}`);
+}, [theme]);
+
   
     return (
       <div className="page-wrapper">
         <div className="layout">
+        <div style={{ position: "absolute", top: "1rem", right: "1rem" }}>
+  <select
+    className="input-field"
+    value={theme}
+    onChange={(e) => setTheme(e.target.value)}
+    style={{ width: "110%" }}
+  >
+    <option value="felt">Green Felt</option>
+    <option value="red">Red Velvet</option>
+    <option value="dark">Dark Mode</option>
+  </select>
+</div>
+
           <div className="main-panel container">
           <div className="section-wrapper">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1.25rem", marginBottom: "1.25rem" }}>
@@ -280,14 +306,14 @@ export default function PokerAdvisor() {
               />
               <h1 style={{ fontSize: "2.5rem", margin: 0 }}>Poker Advisor</h1>
             </div>
-  
+            
             <button onClick={resetAll} className="primary-button" style={{ marginBottom: "1rem" }}>
               Reset All
             </button>
             
             <button className="help-icon" onClick={() => setShowHelp("hand")}>❓</button>
             <section>
-              <h2>Your Hand</h2>
+              <h1>Your Hand</h1>
               <div className="cards">
                 {hand.map((card, index) => (
                   <CardSelector
@@ -301,7 +327,7 @@ export default function PokerAdvisor() {
             </section>
             
             <section>
-              <h2>Flop / Turn / River</h2>
+              <h1>Flop / Turn / River</h1>
               <div className="cards">
                 {board.map((card, index) => (
                   <CardSelector
@@ -337,7 +363,7 @@ export default function PokerAdvisor() {
             </div>
 
   <section>
-    <h2>Pot Settings</h2>
+    <h1>Pot Settings</h1>
     <label>
       Pot Size: $&nbsp;
       <input className="input-field" type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} onFocus={() => {if (potSize === "Insert Value") setPotSize("");}} />
@@ -461,7 +487,45 @@ export default function PokerAdvisor() {
   </div>
 )}
 
+
   </div>
+<div className="right-panel">
+  <div className="player-options-panel container" style={{ background: "#1a1a1a", border: "1px solid #444", width: "400px"}}>
+    <h2>Player Info</h2>
+    <section>
+      <h3>Player Position</h3>
+      <br></br>
+      <select
+        className="input-field"
+        value={position}
+        onChange={(e) => setPosition(e.target.value)}
+        style={{ width: "100%" }}
+      >
+        <option value="Early">Early</option>
+        <option value="Middle">Middle</option>
+        <option value="Late">Late</option>
+        <option value="Blinds">Blinds</option>
+      </select>
+    </section>
+
+    <br />
+
+    <section>
+      <h3>Play Style</h3>
+      <br></br>
+      <select
+        className="input-field"
+        value={style}
+        onChange={(e) => setStyle(e.target.value)}
+        style={{ width: "100%" }}
+      >
+        <option value="Tight Conservative">Tight Conservative</option>
+        <option value="Loose Aggressive">Loose Aggressive</option>
+        <option value="Balanced">Balanced</option>
+      </select>
+    </section>
+  </div>
+
   
           <div className="ai-panel container" style={{ background: "#1a1a1a", border: "1px solid #444" }}>
           <div className="section-wrapper">
@@ -484,6 +548,7 @@ export default function PokerAdvisor() {
         <p>The AI-generated recommendation is designed to provide a quick summary of your current poker situation and suggest a strategic course of action based on standard poker logic. While it takes into account your hand, the board, and pot dynamics, it should be used as a helpful guide—not a strict rule. Poker is a game of both math and instinct, and we encourage you to trust your own judgment when deciding whether to fold, call, raise, or bluff. Please note that this analysis is for informational purposes only; we are not responsible for any betting decisions or game outcomes that result from using this tool.</p>
       </div>
     </div>
+    
   )}
   
             </div>
@@ -497,7 +562,7 @@ export default function PokerAdvisor() {
       </div>
       
       </div>
-      
+      </div>
     );
   }
   

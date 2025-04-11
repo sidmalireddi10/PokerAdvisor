@@ -430,3 +430,79 @@ p {
   font-size: 1.1rem;
   text-align: center;
 }
+
+body.theme-felt {
+  background: radial-gradient(circle, #0b6623, #014421);
+}
+body.theme-red {
+  background: radial-gradient(circle, #9c1a1a, #4b0000);
+}
+body.theme-dark {
+  background: linear-gradient(135deg, #111, #222);
+}
+
+.player-options-panel {
+  max-width: 360px;
+  background-color: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid #444;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.player-options-panel h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  color: #f8f8f8;
+}
+
+.player-options-panel h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 400px;
+  flex: 1;
+}
+
+.input-field {
+  background-color: #d12d36;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  appearance: none; /* Removes default arrow in some browsers */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='16' height='10' viewBox='0 0 16 10' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 10L0.205771 0.25H15.7942L8 10Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+.input-field:hover {
+  background-color: #b5232b;
+  transform: translateY(-1px);
+}
+
+.input-field:active,
+.input-field:focus {
+  background-color: #9e1c23;
+  outline: none;
+  transform: scale(0.98);
+}
+
+h2 {
+  text-align: center;
+}
