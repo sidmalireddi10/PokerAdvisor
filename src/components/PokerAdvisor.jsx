@@ -254,11 +254,13 @@ export default function PokerAdvisor() {
     };
   
     const allCards = [...hand, ...board];
+    const [showHelp, setShowHelp] = useState(null);
   
     return (
       <div className="page-wrapper">
         <div className="layout">
           <div className="main-panel container">
+          <div className="section-wrapper">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1.25rem", marginBottom: "1.25rem" }}>
               <img
                 src={`${import.meta.env.BASE_URL}pokeradvisorlogo1.png`}
@@ -271,7 +273,8 @@ export default function PokerAdvisor() {
             <button onClick={resetAll} className="primary-button" style={{ marginBottom: "1rem" }}>
               Reset All
             </button>
-  
+            
+            <button className="help-icon" onClick={() => setShowHelp("hand")}>❓</button>
             <section>
               <h2>Your Hand</h2>
               <div className="cards">
@@ -285,7 +288,7 @@ export default function PokerAdvisor() {
                 ))}
               </div>
             </section>
-  
+            
             <section>
               <h2>Flop / Turn / River</h2>
               <div className="cards">
@@ -299,22 +302,47 @@ export default function PokerAdvisor() {
                 ))}
               </div>
             </section>
-  
-            <section>
-              <h2>Pot Settings</h2>
-              <label>
-                Pot Size: $&nbsp;
-                <input className="input-field" type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} onFocus={() => {if (potSize === "Insert Value") setPotSize("");}}/>
-              </label>
-              <br /><br />
-              <label>
-                Call Amount: $&nbsp;
-                <input className="input-field" type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} onFocus={() => {if (callAmount === "Insert Value") setCallAmount("");}}/>
-              </label>
-            </section>
-          </div>
+
+            
+            {showHelp === "hand" && (
+    <div className="modal" onClick={() => setShowHelp(null)}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-button" onClick={() => setShowHelp(null)}>X</button>
+        <h3>How To Work Poker Advisor</h3>
+        <p>1. Click the each card listed under 'Your Hand'. For each, choose the suit and the card value according to the hand you have received in your game. This is your pre-flop hand. Then, set the initial pot size and call amount, and analyze your hand.
+        <br></br><br></br>
+        2. Then, if you did not fold do the same for three more cards under 'Flop/Turn/River'. This is considered the flop. Adjust the pot size and call amount. Now, analyze again.
+        <br></br><br></br>
+        3. Next is the turn. If not folded already, set the suit and value for the fourth card. Adjust the pot size and call amount. Now, analyze again.
+        <br></br><br></br>
+        4. Finally, do the same for the river. Set the suit and value for the last card. Adjust the pot size and call amount. Now, analyze again.
+        <br></br><br></br>
+        *Once the hand is over or you have folded, press 'Reset All' at the top of the screen.*
+        </p>
+      </div>
+    </div>
+  )}
+
+            </div>
+
+  <section>
+    <h2>Pot Settings</h2>
+    <label>
+      Pot Size: $&nbsp;
+      <input className="input-field" type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} onFocus={() => {if (potSize === "Insert Value") setPotSize("");}} />
+    </label>
+    <br /><br />
+    <label>
+      Call Amount: $&nbsp;
+      <input className="input-field" type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} onFocus={() => {if (callAmount === "Insert Value") setCallAmount("");}} />
+    </label>
+  </section>
+  </div>
   
           <div className="ai-panel container" style={{ background: "#1a1a1a", border: "1px solid #444" }}>
+          <div className="section-wrapper">
+          <button className="help-icon" onClick={() => setShowHelp("ai")}>❓</button>
+          <br></br>
             <h2>AI Insights</h2>
             <button onClick={handleAIAnalysis} className="primary-button" style={{ marginBottom: "1rem", width: "100%" }}>
               {loading ? "Analyzing..." : "Run AI Analysis"}
@@ -323,9 +351,20 @@ export default function PokerAdvisor() {
             <div className="results" style={{ width: "100%" }}>
               <h3>AI Analysis:</h3>
               <p>{aiAnalysis}</p>
+
+              {showHelp === "ai" && (
+    <div className="modal" onClick={() => setShowHelp(null)}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-button" onClick={() => setShowHelp(null)}>X</button>
+        <h3>Interpreting The Analysis</h3>
+        <p>The AI-generated recommendation is designed to provide a quick summary of your current poker situation and suggest a strategic course of action based on standard poker logic. While it takes into account your hand, the board, and pot dynamics, it should be used as a helpful guide—not a strict rule. Poker is a game of both math and instinct, and we encourage you to trust your own judgment when deciding whether to fold, call, raise, or bluff. Please note that this analysis is for informational purposes only; we are not responsible for any betting decisions or game outcomes that result from using this tool.</p>
+      </div>
+    </div>
+  )}
             </div>
           </div>
         </div>
+      </div>
       </div>
     );
   }

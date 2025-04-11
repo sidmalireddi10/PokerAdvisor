@@ -219,3 +219,61 @@ body {
     width: 100%;
   }
 }
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #2a2a2a;
+  color: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 400px;
+  text-align: left;
+  box-shadow: 0 0 10px #000;
+}
+
+.modal-button {
+  background-color: #d12d36;
+  color: white !important;
+  border-color: #d12d36;
+}
+
+.section-wrapper {
+  position: relative;
+}
+
+.section-wrapper section {
+  position: relative; /* This anchors the help icon inside the section */
+}
+
+.help-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.25rem;
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s ease;
+}
+
+.help-icon:hover {
+  color: #fff;
+}
+
+p {
+  line-height: 1.6;
+}
