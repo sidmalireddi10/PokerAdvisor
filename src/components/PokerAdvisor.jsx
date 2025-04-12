@@ -34,17 +34,24 @@ function getCardImageFilename(value, suit) {
 
 async function fetchAIAnalysis(hand, board, potSize, callAmount, position, style) {
   try {
-    const response = await fetch("/.netlify/functions/ai-analysis", {
+    const res = await fetch("/.netlify/functions/ai-analysis", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ hand, board, potSize, callAmount, position, style })
     });
 
-    const data = await response.json();
-    return data.message || "No analysis received.";
+    if (!res.ok) {
+      const text = await res.text(); // fallback to reading raw error text
+      throw new Error(`AI Server Error (${res.status}): ${text}`);
+    }
+
+    const result = await res.json();
+    return result.result || "AI did not return a message.";
   } catch (err) {
     console.error("AI Analysis error:", err);
-    return "Failed to get AI analysis.";
+    return "AI analysis failed. Please try again later.";
   }
 }
 
