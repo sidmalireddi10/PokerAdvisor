@@ -34,10 +34,10 @@ function getCardImageFilename(value, suit) {
 
 async function fetchAIAnalysis(hand, board, potSize, callAmount, position, style) {
   try {
-    const response = await fetch("http://localhost:3001/ai-analysis", {
+    const response = await fetch("/.netlify/functions/ai-analysis", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hand, board, potSize, callAmount, position, style }),
+      body: JSON.stringify({ hand, board, potSize, callAmount, position, style })
     });
 
     const data = await response.json();

@@ -1,21 +1,13 @@
-// ai-analysis-server.js
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
+// netlify/functions/ai-analysis.js
 import OpenAI from "openai";
 
-dotenv.config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
 const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
   baseURL: "https://models.inference.ai.azure.com",
-  apiKey: process.env.GITHUB_TOKEN,
+  dangerouslyAllowBrowser: true, // required for running GPT-4o from frontend call
 });
 
-app.post("/ai-analysis", async (req, res) => {
+export default async (req, res) => {
   try {
     const { hand, board, potSize, callAmount, position, style } = req.body;
 
@@ -43,14 +35,9 @@ Player Style: ${style}\n`;
       max_tokens: 250,
     });
 
-    res.json({ message: response.choices[0].message.content });
-  } catch (err) {
-    console.error("AI analysis error:", err);
-    res.status(500).json({ error: "Failed to fetch AI analysis." });
+    return res.status(200).json({ message: response.choices[0].message.content });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "AI analysis failed." });
   }
-});
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`AI server running on http://localhost:${PORT}`);
-});
+};
