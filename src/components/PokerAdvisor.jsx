@@ -1,8 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
-
-const AIML_API_KEY = import.meta.env.VITE_AIML_API_KEY;
-const AIML_API_URL = "https://api.aimlapi.com/v1/chat/completions";
 
 const suits = ["♠", "♥", "♦", "♣"];
 const values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -37,50 +33,18 @@ function getCardImageFilename(value, suit) {
 }
 
 async function fetchAIAnalysis(hand, board, potSize, callAmount, position, style) {
-  const prompt = `You are a professional poker player. Given the situation below, provide a strategic analysis and recommendation:\n
-Hand: ${hand.map(c => `${c.value}${c.suit}`).join(", ")}\n
-Board: ${board.filter(c => c.value && c.suit).map(c => `${c.value}${c.suit}`).join(", ") || "N/A"}\n
-Pot Size: $${potSize}, Call Amount: $${callAmount}\n
-Player Position: ${position}\n
-Player Style: ${style}\n`;
-
-
   try {
-    const response = await axios.post(
-      AIML_API_URL,
-      {
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "You are a professional poker advisor. Respond with a short and clear summary of the player's situation and a concise recommendation. The response should be no longer than 5-6 sentences. Be friendly but strategic—accessible for newer players, but sharp enough for experienced ones. Also provide the odds of them winning. Also give exact cards they need to create their best hand. Make summary, recommendation, odds, and needed as different paragraphs."
-          },          
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        temperature: 0.8,
-        max_tokens: 300,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        response_format: {
-          type: "text"
-        },
-        modalities: ["text"]
-      },
-      {
-        headers: {
-          "Authorization": `Bearer ${AIML_API_KEY}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
+    const response = await fetch("http://localhost:3001/ai-analysis", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hand, board, potSize, callAmount, position, style }),
+    });
 
-    return response.data.choices?.[0]?.message?.content ?? "No response received.";
-  } catch (error) {
-    console.error("AI Analysis error:", error);
-    return "AI analysis failed. Please try again.";
+    const data = await response.json();
+    return data.message || "No analysis received.";
+  } catch (err) {
+    console.error("AI Analysis error:", err);
+    return "Failed to get AI analysis.";
   }
 }
 
@@ -142,25 +106,15 @@ useEffect(() => {
           <img
             src={cardImage}
             alt={`${card.value} of ${card.suit}`}
-            style={{
-              width: "70px",
-              height: "100px",
-              borderRadius: "8px",
-              border: "1px solid #444",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-            }}
+            className="poker-card"
           />
         ) : (
           <img
             src="/cards/card_back.jpeg"
             alt="Card Back"
+            className="poker-card"
             style={{
-              width: "70px",
-              height: "100px",
-              borderRadius: "8px",
-              border: "1px solid #444",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-              cursor: "pointer",
+              cursor: "pointer"
             }}
           />
         )}
@@ -288,7 +242,7 @@ useEffect(() => {
     className="input-field"
     value={theme}
     onChange={(e) => setTheme(e.target.value)}
-    style={{ width: "110%" }}
+    style={{ width: "105%" }}
   >
     <option value="felt">Green Felt</option>
     <option value="red">Red Velvet</option>
@@ -370,12 +324,12 @@ useEffect(() => {
     <h1>Pot Settings</h1>
     <label>
       Pot Size: $&nbsp;
-      <input className="input-field" type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} onFocus={() => {if (potSize === "Insert Value") setPotSize("");}} />
+      <input className="insert-field" type="text" inputMode="decimal" value={potSize} onChange={(e) => setPotSize(e.target.value)} onFocus={() => {if (potSize === "Insert Value") setPotSize("");}} />
     </label>
     <br /><br />
     <label>
       Call Amount: $&nbsp;
-      <input className="input-field" type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} onFocus={() => {if (callAmount === "Insert Value") setCallAmount("");}} />
+      <input className="insert-field" type="text" inputMode="decimal" value={callAmount} onChange={(e) => setCallAmount(e.target.value)} onFocus={() => {if (callAmount === "Insert Value") setCallAmount("");}} />
     </label>
   </section>
 
